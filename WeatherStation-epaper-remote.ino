@@ -40,11 +40,15 @@ SOFTWARE.
 /***************************
   Settings
  **************************/
-//const char* WIFI_SSID = "";
-//const char* WIFI_PWD = "";
+//const char* WIFI_SSID = "duckgagaga";
+//const char* WIFI_PWD = "upcduckduck";
+//IPAddress staticIP(192,168,2,110);
+//IPAddress gateway(192,168,2,1);
+//IPAddress subnet(255,255,255,0);
+
 const int sleeptime=60;     //updating interval 71min maximum
 const float UTC_OFFSET = 8;
-byte end_time=6;            //time that stops to update weather forecast
+byte end_time=1;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
 const char* server="www.duckweather.tk";
 const char* client_name="luhui"; //send message to weather station via duckduckweather.esy.es/client.php
@@ -70,6 +74,7 @@ void setup() {
  
   Serial.begin(115200);////Serial.println();////Serial.println();
    check_rtc_mem();
+   
   pinMode(D3,INPUT);
   pinMode(CS,OUTPUT);
   pinMode(DC,OUTPUT);
@@ -83,10 +88,10 @@ void setup() {
    /*************************************************
    wifimanager
    *************************************************/
-  //WiFi.begin(WIFI_SSID, WIFI_PWD);
+  
   WiFiManagerParameter custom_c("city","city","your city", 20);
   WiFiManager wifiManager;
-   if (read_config()==126)
+  if (read_config()==126)
   {
      EPD.deepsleep(); ESP.deepSleep(60 * sleeptime * 1000000);
     }
@@ -94,7 +99,8 @@ void setup() {
   wifiManager.setAPCallback(configModeCallback);
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.addParameter(&custom_c); 
-  wifiManager.autoConnect("Weather widget");
+  wifiManager.autoConnect("Weather widget"); 
+ // WiFi.begin(WIFI_SSID, WIFI_PWD);WiFi.config(staticIP, gateway, subnet);
   while (WiFi.status() != WL_CONNECTED)
   {
    check_config();
@@ -110,7 +116,8 @@ void setup() {
   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
   EPD.deepsleep(); ESP.deepSleep(60 * sleeptime * 1000000);
   }
-  city= custom_c.getValue();
+ city= custom_c.getValue();
+   
    /*************************************************
    EPPROM
    *************************************************/

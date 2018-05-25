@@ -40,18 +40,13 @@ SOFTWARE.
 /***************************
   Settings
  **************************/
-//const char* WIFI_SSID = "duckgagaga";
-//const char* WIFI_PWD = "upcduckduck";
-//IPAddress staticIP(192,168,2,110);
-//IPAddress gateway(192,168,2,1);
-//IPAddress subnet(255,255,255,0);
 
 const int sleeptime=60     ;     //updating interval 71min maximum
 const float UTC_OFFSET = 8;
 byte end_time=1;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
 const char* server="www.duckweather.tk";
-const char* client_name="luhui"; //send message to weather station via duckduckweather.esy.es/client.php
+const char* client_name=""; //send message to weather station via duckduckweather.esy.es/client.php
 //modify language in lang.h
 
  /***************************
@@ -61,11 +56,10 @@ String lastUpdate = "--";
 bool shouldsave=false;
 bool updating=false; //is in updating progress
 TimeClient timeClient(UTC_OFFSET,server);
+WaveShare_EPD EPD = WaveShare_EPD();
 heweatherclient heweather(server,lang);
 
-//Ticker ticker;
 Ticker avoidstuck;
-WaveShare_EPD EPD = WaveShare_EPD();
 
 void saveConfigCallback () {
    shouldsave=true;
@@ -101,10 +95,10 @@ void setup() {
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.addParameter(&custom_c); 
   wifiManager.autoConnect("Weather widget"); 
- // WiFi.begin(WIFI_SSID, WIFI_PWD);WiFi.config(staticIP, gateway, subnet);
+
   while (WiFi.status() != WL_CONNECTED)
   {
-   check_config();
+   always_sleep();
   ////Serial.println("failed to connect and hit timeout");
   EPD.clearshadows(); 
   EPD.clearbuffer();
@@ -154,6 +148,7 @@ void setup() {
    update weather
 *************************************************/
 //heweather.city="huangdao";
+heweather.EPDbuffer=&EPD.EPDbuffer[0];
 avoidstuck.attach(10,check);
 updating=true;
 updateData();
@@ -183,56 +178,35 @@ ESP.deepSleep(60 * sleeptime * 1000000);
 }
 void updatedisplay()
 {
-    
-    EPD.clearshadows(); EPD.clearbuffer();EPD.fontscale=1; 
-    
-   /*EPD.SetFont(12);unsigned char code[]={0x00,heweather.getMeteoconIcon(heweather.now_cond_index.toInt())};EPD.DrawUnicodeStr(0,16,80,80,1,code);
-    EPD.SetFont(13);unsigned char code2[]={0x00,heweather.getMeteoconIcon(heweather.today_cond_d_index.toInt())};EPD.DrawUnicodeStr(0,113,32,32,1,code2);
-    EPD.SetFont(13);unsigned char code3[]={0x00,heweather.getMeteoconIcon(heweather.tomorrow_cond_d_index.toInt())};EPD.DrawUnicodeStr(28,113,32,32,1,code3);
-    EPD.DrawXline(114,295,30);EPD.DrawXline(114,295,57);
-    
-    EPD.SetFont(3);
-    ////Serial.println("heweather.citystr");
-    ////Serial.println(heweather.citystr);
-     EPD.DrawXbm_P(80,5,12,12,(unsigned char *)city_icon);EPD.DrawUTF(80,21,12,12,heweather.citystr);//城市名
-    EPD.DrawUTF(96,70,12,12,"RH:"+heweather.now_hum+"%");
-    EPD.DrawUTF(112,70,12,12,heweather.date.substring(5, 10));
-    EPD.DrawUTF(3,145,12,12,(String)todaystr+" "+heweather.today_tmp_min+"°~"+heweather.today_tmp_max+"°");EPD.DrawUTF(15,145,12,12,heweather.today_txt_d+"/"+heweather.today_txt_n);
-    EPD.DrawUTF(32,145,12,12,(String)tomorrowstr+" "+heweather.tomorrow_tmp_min+"°~"+heweather.tomorrow_tmp_max+"°");
-    EPD.DrawUTF(44,145,12,12,heweather.tomorrow_txt_d+"/"+heweather.tomorrow_txt_n);
-   EPD.DrawXbm_P(61,116,12,12,(unsigned char *)aqi_icon); EPD.DrawUTF(61,131,12,12,airstr+heweather.qlty);
-   // EPD.DrawUTF(86,116,16,16,"RH:"+heweather.now_hum+"%"+" "+heweather.now_dir+heweather.now_sc);
-   // EPD.DrawXbm_P(76,116,12,12,(unsigned char *)night);  EPD.DrawUTF(76,131,12,12,tonightstr+heweather.today_txt_n);
-
-    EPD.DrawXbm_P(76,116,12,12,(unsigned char *)message);
-     EPD.DrawUTF(76,131,12,12,heweather.message);
-    EPD.SetFont(0x2);
-  //  EPD.DrawUTF(0,250,10,10,lastUpdate);//updatetime
-   
-    EPD.SetFont(0x1);
-    EPD.DrawUTF(96,5,32,32,heweather.now_tmp+"°");//天气实况温度
-    EPD.DrawYline(96,127,67);
-    dis_batt(3,272);
-   
-    
-    for(int i=0;i<1808;i++) EPD.EPDbuffer[i]=~EPD.EPDbuffer[i];
-   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
-    //EPD.EPD_Dis_Full((unsigned char *)EPD.EPDbuffer,1);*/
-   // EPD.EPD_Dis_Full((unsigned char *)heweather.EPDbuffer,1);
-
-   memcpy(EPD.EPDbuffer,heweather.EPDbuffer,sizeof(heweather.EPDbuffer));
+   EPD.clearshadows();EPD.fontscale=1;
    dis_batt(3,272);
-   //float voltage=(float)(analogRead(A0))/920;
-   //String voltagestring=(String)((voltage)*4-0.1815);
-   //EPD.SetFont(0x2);
-   //EPD.DrawUTF(10,270,10,10,voltagestring+"V");
-    EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
-    driver_delay_xms(DELAYTIME);
-      
+   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
+   driver_delay_xms(DELAYTIME);
+ }
+ void dis_batt(int16_t x, int16_t y)
+{
+  /*attention! calibrate it yourself, i'm using 100K and 300K devider.
+   * adc需要自己校准。我用的是100K和300K的分压电阻
+   * 不校准电量显示不准
+   * 真实电压=a*adc获取的电压+b
+   * 系数需要自己计算
+   */
+  float voltage=(float)(analogRead(A0))/920; 
+  float batt_voltage=(voltage)*4-0.1815;
+ /*attention! calibrate it yourself, i'm using 100K and 300K devider.
+   * adc需要自己校准。我用的是100K和300K的分压电阻
+   * 不校准电量显示不准
+   * 真实电压=a*adc获取的电压+b
+   * 系数需要自己计算
+   */
+  if (batt_voltage<=3.4)  {EPD.clearbuffer();EPD.DrawXbm_P(39,98,100,50,(unsigned char *)needcharge);always_sleep();}
+  if (batt_voltage>3.4&&batt_voltage<=3.6)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_1);
+  if (batt_voltage>3.6&&batt_voltage<=3.8)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_2);
+  if (batt_voltage>3.8&&batt_voltage<=4.0)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_3);
+  if (batt_voltage>4.0&&batt_voltage<=4.2)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_4);
+  if (batt_voltage>4.2)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_5);
   
   }
-
-
 
 void updateData() {
   
@@ -283,25 +257,9 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
   driver_delay_xms(DELAYTIME);
 }
-void dis_batt(int16_t x, int16_t y)
-{
-  /*attention! calibrate it yourself, i'm using 100K and 300K devider.
-   * adc需要自己校准。我用的是100K和300K的分压电阻
-   * 不校准电量显示不准
-   * 真实电压=a*adc获取的电压+b
-   * 系数需要自己计算
-   */
-  float voltage=(float)(analogRead(A0))/920; 
-  float batt_voltage=(voltage)*4-0.1815;
-  //calibrate it yourself, i'm using 100K and 300K devider.
-  if (batt_voltage<=3.4)  {EPD.clearbuffer();EPD.DrawXbm_P(39,98,100,50,(unsigned char *)needcharge);check_config();}
-  if (batt_voltage>3.4&&batt_voltage<=3.6)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_1);
-  if (batt_voltage>3.6&&batt_voltage<=3.8)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_2);
-  if (batt_voltage>3.8&&batt_voltage<=4.0)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_3);
-  if (batt_voltage>4.0&&batt_voltage<=4.2)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_4);
-  if (batt_voltage>4.2)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_5);
-  
-  }
+
+
+
 unsigned long read_config()
 {
   byte rtc_mem[4];
@@ -310,7 +268,7 @@ unsigned long read_config()
   return rtc_mem[2];
   
   }
-unsigned long check_config()
+unsigned long always_sleep()
 {
   byte rtc_mem[4];
   ESP.rtcUserMemoryRead(4, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
@@ -319,12 +277,8 @@ unsigned long check_config()
     ////Serial.println("first time to run check config");
     rtc_mem[2]=126;
     ESP.rtcUserMemoryWrite(4, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-    return 180;
+   
     }
-  else
-  {
-     return 44;
-    } 
   
   }
 void check_rtc_mem()

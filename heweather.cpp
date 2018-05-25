@@ -204,7 +204,7 @@ void heweatherclient::update()
      while((size = client.available()) > 0) {
      c = client.read();
      if(isBody==true){
-     EPDbuffer[pos]=c;
+     *(EPDbuffer+pos)=c;
      pos++;
      //////Serial.println(pos);
      }

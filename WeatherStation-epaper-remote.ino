@@ -37,6 +37,7 @@ SOFTWARE.
 #include "EPD_drive_gpio.h"
 #include "bitmaps.h"
 #include "lang.h"
+ADC_MODE(ADC_VCC);
 /***************************
   Settings
  **************************/
@@ -45,8 +46,8 @@ const int sleeptime=60     ;     //updating interval 71min maximum
 const float UTC_OFFSET = 8;
 byte end_time=1;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
-const char* server="www.duckweather.tk";
-const char* client_name=""; //send message to weather station via duckduckweather.esy.es/client.php
+const char* server="192.168.199.2";
+const char* client_name="news"; //send message to weather station via duckduckweather.esy.es/client.php
 //modify language in lang.h
 
  /***************************
@@ -66,7 +67,7 @@ void saveConfigCallback () {
 }
 void setup() {
  
-//  Serial.begin(115200);
+  //Serial.begin(115200);
    check_rtc_mem();
    if (read_config()==126)
   {
@@ -147,7 +148,7 @@ void setup() {
 /*************************************************
    update weather
 *************************************************/
-//heweather.city="huangdao";
+heweather.city="huangdao";
 heweather.EPDbuffer=&EPD.EPDbuffer[0];
 avoidstuck.attach(10,check);
 updating=true;
@@ -178,8 +179,12 @@ ESP.deepSleep(60 * sleeptime * 1000000);
 }
 void updatedisplay()
 {
-   EPD.clearshadows();EPD.fontscale=1;
+   EPD.clearshadows(); 
+   EPD.fontscale=1;
    dis_batt(3,272);
+   EPD.SetFont(2);
+  
+  //EPD.DrawUTF(20,250,10,10,(String)ESP.getVcc()+(String)lastUpdate);
    EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
    driver_delay_xms(DELAYTIME);
  }
@@ -191,20 +196,23 @@ void updatedisplay()
    * 真实电压=a*adc获取的电压+b
    * 系数需要自己计算
    */
-  float voltage=(float)(analogRead(A0))/920; 
-  float batt_voltage=(voltage)*4-0.1815;
+   float voltage;
+   voltage=(float)ESP.getVcc()/1000; 
+  
+  float batt_voltage=voltage;
+  
  /*attention! calibrate it yourself, i'm using 100K and 300K devider.
    * adc需要自己校准。我用的是100K和300K的分压电阻
    * 不校准电量显示不准
    * 真实电压=a*adc获取的电压+b
    * 系数需要自己计算
    */
-  if (batt_voltage<=3.4)  {EPD.clearbuffer();EPD.DrawXbm_P(39,98,100,50,(unsigned char *)needcharge);always_sleep();}
-  if (batt_voltage>3.4&&batt_voltage<=3.6)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_1);
-  if (batt_voltage>3.6&&batt_voltage<=3.8)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_2);
-  if (batt_voltage>3.8&&batt_voltage<=4.0)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_3);
-  if (batt_voltage>4.0&&batt_voltage<=4.2)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_4);
-  if (batt_voltage>4.2)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_5);
+  if (batt_voltage<=2.8)  {EPD.clearbuffer();EPD.DrawXbm_P(39,98,100,50,(unsigned char *)needcharge);always_sleep();}
+  if (batt_voltage>2.8&&batt_voltage<=2.9)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_1);
+  if (batt_voltage>3.0&&batt_voltage<=3.1)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_2);
+  if (batt_voltage>3.1&&batt_voltage<=3.2)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_3);
+  if (batt_voltage>3.2&&batt_voltage<=3.3)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_4);
+  if (batt_voltage>3.3)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_5);
   
   }
 

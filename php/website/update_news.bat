@@ -1,0 +1,1 @@
+curl http://localhost/update_news.php 

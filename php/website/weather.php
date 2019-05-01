@@ -51,8 +51,10 @@ if($minute>=60.0)
 echo 'new';
 $url="https://free-api.heweather.com/v5/weather?city=".$city."&key=ae71d94bace847879eadddad28e17776&lang=".$lang;  
 $html = file_get_contents($url); 
+if($html!="")
+{
 mysqli_query($con,"UPDATE weatherdata SET weatherdata='".$html."', updatetime='".date("Y-m-d H:i:s")."' , lang='".$lang."' WHERE city='".$city."' AND lang='".$lang."'");
-
+}
 }	
 else
 {

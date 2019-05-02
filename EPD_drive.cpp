@@ -34,6 +34,8 @@ void WaveShare_EPD::SetFont(byte fontindex)
      fontname="/font10";fontwidth=10;fontheight=10;break;
      case 3:
      fontname="/font12";fontwidth=12;fontheight=12;break;
+      case 4:
+     fontname="/font56";fontwidth=56;fontheight=56;break;
      case 11:
      fontname="/weathericon";fontwidth=32;fontheight=32;break;
      case 12:
@@ -163,19 +165,20 @@ void WaveShare_EPD::DrawUnicodeStr(byte x,int16_t y,byte width,byte height,byte 
       
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=CurrentCursor+1;
-      if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
+      
+     // if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
     }
     else if(fontscale==2)
     {
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=width*2;
-      if((y+ymove+width*2)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
+     // if((y+ymove+width*2)>=yDot-1)  {xmove+=height+1;ymove=0;CurrentCursor=0;}
       }
     else
     {
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=width;
-      if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
+      //if((y+ymove+width)>=yDot-1)  {xmove+=height+1;ymove=0;CurrentCursor=0;}
       }
     i++;i++;
     }

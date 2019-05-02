@@ -185,7 +185,7 @@ void heweatherclient::update()
   ////Serial.print("Requesting URL: ");
 
   // This will send the request to the server
-  client.print(String("GET /epd.php?city=")+city+"&lang="+lang+"&client_name="+client_name+" HTTP/1.1\r\n" +
+  client.print(String("GET /epd_wx_time.php?city=")+city+"&lang="+lang+"&client_name="+client_name+" HTTP/1.1\r\n" +
              "Host: " + server + "\r\n" +
              "Connection: close\r\n" +
              "\r\n" );

@@ -47,7 +47,7 @@ const int timeupdateinterval=60;  //update time on display/seconds
 const float UTC_OFFSET = 8;
 byte end_time=7;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
-const char* server="www.duck.com";
+const char* server="www.duckweather.tk";
 const char* client_name="news"; //send message to weather station via duckduckweather.esy.es/client.php
 //modify language in lang.h
 
@@ -196,7 +196,7 @@ void updatedisplay()
  // EPD.DrawUTF(20,220,10,10,(String)ESP.getVcc()+" "+(String)lastUpdate);
    EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
    driver_delay_xms(DELAYTIME); 
-   //dis_time(0, 230);
+   dis_time(0, 230);
  }
  void dis_batt(int16_t x, int16_t y)
 {
@@ -218,10 +218,11 @@ void updatedisplay()
 
  void dis_time(int16_t x, int16_t y)
  {
+  x=1;y=120;
   EPD.fontscale=1;EPD.clearbuffer();
-  EPD.SetFont(3);
-  EPD.DrawUTF(x,y,12,12,timeClient.getFormattedTime());
-  EPD.EPD_Dis_Part(0,15,230,271,(unsigned char *)EPD.EPDbuffer,1);
+  EPD.SetFont(4);
+  EPD.DrawUTF(x,y,56,56,timeClient.getFormattedTime());
+  EPD.EPD_Dis_Part(0,47,116,271,(unsigned char *)EPD.EPDbuffer,1);
  }
 
 void updateData() {

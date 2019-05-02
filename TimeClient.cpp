@@ -71,6 +71,7 @@ if (!client.connect(server, 80)) {
   while(client.connected()) {
    // ////Serial.println("time server connected");
    // ////Serial.println(client.available());
+   delay(200);
     while((size = client.available()) > 0) {
   
        
@@ -83,10 +84,10 @@ if (!client.connect(server, 80)) {
         int parsedHours = line.substring(23, 25).toInt();
         int parsedMinutes = line.substring(26, 28).toInt();
         int parsedSeconds = line.substring(29, 31).toInt();
-        ////Serial.println(String(parsedHours) + ":" + String(parsedMinutes) + ":" + String(parsedSeconds));
+        Serial.println(String(parsedHours) + ":" + String(parsedMinutes) + ":" + String(parsedSeconds));
 
         localEpoc = (parsedHours * 60 * 60 + parsedMinutes * 60 + parsedSeconds);
-        ////Serial.println(localEpoc);
+        Serial.println(localEpoc);
         localMillisAtUpdate = millis();
       }
     }
@@ -129,7 +130,7 @@ String TimeClient::getSeconds() {
 }
 
 String TimeClient::getFormattedTime() {
-  return getHours() + ":" + getMinutes() + ":" + getSeconds();
+  return getHours() + ":" + getMinutes();
 }
 
 long TimeClient::getCurrentEpoch() {

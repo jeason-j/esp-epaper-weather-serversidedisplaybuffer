@@ -32,7 +32,7 @@ class TimeClient {
 
   private:
     float myUtcOffset = 0;
-    long localEpoc = 0;
+   
     long localMillisAtUpdate;
     
     const char* ntpServerName = "time.nist.gov";
@@ -44,7 +44,7 @@ class TimeClient {
   public:
     TimeClient(float utcOffset,const char * Serverurl);
     void updateTime();
-
+    long localEpoc = 0;
     String getHours();
     String getMinutes();
     String getSeconds();
@@ -53,4 +53,3 @@ class TimeClient {
     long getCurrentEpochWithUtcOffset();
 
 };
-

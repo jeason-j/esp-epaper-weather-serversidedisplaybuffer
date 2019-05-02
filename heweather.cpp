@@ -200,7 +200,7 @@ void heweatherclient::update()
   client.setNoDelay(false);
   while(client.connected()) {
   
-        
+        delay(200);
      while((size = client.available()) > 0) {
      c = client.read();
      if(isBody==true){

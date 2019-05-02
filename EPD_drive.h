@@ -100,7 +100,7 @@ class WaveShare_EPD {
 	void EPD_WriteCMD_p1(unsigned char command,unsigned char para);
 	void EPD_POWERON(void);
 	void EPD_Write(unsigned char *value, unsigned char datalen);
-	void EPD_WriteDispRam(unsigned char XSize,unsigned int YSize,unsigned char *Dispbuff);
+	void EPD_WriteDispRam(unsigned char XSize,unsigned int YSize,unsigned char *Dispbuff,unsigned int offset);
 	
 	void EPD_SetRamArea(unsigned char Xstart,unsigned char Xend,unsigned char Ystart,unsigned char Ystart1,unsigned char Yend,unsigned char Yend1);
 	void EPD_SetRamPointer(unsigned char addrX,unsigned char addrY,unsigned char addrY1);
@@ -150,4 +150,3 @@ void  Dis_String2(unsigned char x,unsigned char y, const char *pString,unsigned 
 };
 
 #endif
-

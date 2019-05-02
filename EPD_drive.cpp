@@ -328,8 +328,9 @@ Parameters:
 		the data storage location. The data must be arranged in a correct manner
 ********************************************************************************/
 void WaveShare_EPD::EPD_WriteDispRam(unsigned char XSize,unsigned int YSize,
-							unsigned char *Dispbuff)
+							unsigned char *Dispbuff,unsigned int offset)
 {
+	
 	int i = 0,j = 0;
 	if(XSize%8 != 0){
 		XSize = XSize+(8-XSize%8);
@@ -341,11 +342,18 @@ void WaveShare_EPD::EPD_WriteDispRam(unsigned char XSize,unsigned int YSize,
 	EPD_DC_0;		//command write
 	SPI_Write(0x24);
 	EPD_DC_1;		//data write
+  
+  Dispbuff+=offset;
+  
 	for(i=0;i<YSize;i++){
 		for(j=0;j<XSize;j++){
+    
 			SPI_Write(*Dispbuff);
 			Dispbuff++;
+     
 		}
+      Dispbuff+=16-XSize;
+   
 	}
 	EPD_CS_1;
 }
@@ -424,7 +432,7 @@ void WaveShare_EPD::EPD_SetRamPointer(unsigned char addrX,unsigned char addrY,un
 void WaveShare_EPD::EPD_part_display(unsigned char RAM_XST,unsigned char RAM_XEND,unsigned char RAM_YST,unsigned char RAM_YST1,unsigned char RAM_YEND,unsigned char RAM_YEND1)
 {    
 	EPD_SetRamArea(RAM_XST,RAM_XEND,RAM_YST,RAM_YST1,RAM_YEND,RAM_YEND1);  	/*set w h*/
-    EPD_SetRamPointer (RAM_XST,RAM_YST,RAM_YST1);		    /*set orginal*/
+  EPD_SetRamPointer (RAM_XST,RAM_YST,RAM_YST1);		    /*set orginal*/
 }
 
 //=========================functions============================
@@ -510,7 +518,7 @@ void WaveShare_EPD::EPD_Dis_Full(unsigned char *DisBuffer,unsigned char Label)
 	if(Label == 0){
 		EPD_WriteDispRamMono(xDot, yDot, 0x01);	// white	
 	}else{
-		EPD_WriteDispRam(xDot, yDot, (unsigned char *)DisBuffer);	// white
+		EPD_WriteDispRam(xDot, yDot, (unsigned char *)DisBuffer,0);	// white
 	}	
 	EPD_Update();	
 	  
@@ -530,6 +538,11 @@ parameter:
 void WaveShare_EPD::EPD_Dis_Part(unsigned char xStart,unsigned char xEnd,unsigned long yStart,unsigned long yEnd,unsigned char *DisBuffer,unsigned char Label)
 {
 	////Serial.println(">>>>>>------start send display data!!---------<<<<<<<");
+  unsigned long temp; temp=yStart;
+  unsigned int offset;offset=yStart*16+xStart/8;
+  Serial.println("offset");Serial.println(offset);
+  yStart=295-yEnd;yEnd=295-temp;
+  
 	if(Label==0){// black
 		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);
 		EPD_WriteDispRamMono(xEnd-xStart, yEnd-yStart+1, DisBuffer[0]);
@@ -539,11 +552,11 @@ void WaveShare_EPD::EPD_Dis_Part(unsigned char xStart,unsigned char xEnd,unsigne
 		EPD_WriteDispRamMono(xEnd-xStart, yEnd-yStart+1,DisBuffer[0]);	
 	}else{// show 
 		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);		
-		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer);
+		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer,offset);
 		EPD_Update_Part();
 		driver_delay_xms(500);
 		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);
-		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer);
+		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer,offset);
 	}
 }
 
@@ -719,4 +732,3 @@ Remarks:
 /***********************************************************
 						end file
 ***********************************************************/
-

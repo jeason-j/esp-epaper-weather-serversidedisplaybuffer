@@ -43,10 +43,11 @@ ADC_MODE(ADC_VCC);
  **************************/
 
 const int sleeptime=60;     //updating interval 71min maximum
+const int timeupdateinterval=60;  //update time on display/seconds
 const float UTC_OFFSET = 8;
-byte end_time=1;            //time that stops to update weather forecast
+byte end_time=7;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
-const char* server="www.duckweather.tk";
+const char* server="www.duck.com";
 const char* client_name="news"; //send message to weather station via duckduckweather.esy.es/client.php
 //modify language in lang.h
 
@@ -68,8 +69,9 @@ void saveConfigCallback () {
 void setup() {
  
   Serial.begin(115200);
-  Serial.println("check_rtc_mem");Serial.println("check_rtc_mem");
-   check_rtc_mem();
+  
+  Serial.println("check_rtc_mem");Serial.println("check_rtc_mem");read_time_from_rtc_mem();
+  check_rtc_mem();
    if (read_config()==126)
   {
     Serial.println("readconfig=126");
@@ -84,6 +86,8 @@ void setup() {
   SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
   SPI.begin();
   EPD.EPD_init_Part();driver_delay_xms(DELAYTIME);
+  
+  update_time();//display time
  heweather.client_name=client_name;  
  
    /*************************************************
@@ -176,7 +180,9 @@ void loop() {
  }
  
 EPD.deepsleep();
-ESP.deepSleep(60 * sleeptime * 1000000);
+timeClient.localEpoc+=60;
+write_time_to_rtc_mem();//save time before sleeping
+ESP.deepSleep(timeupdateinterval * 1 * 1000000); //main control of sleeping inverval
 
 }
 void updatedisplay()
@@ -184,11 +190,13 @@ void updatedisplay()
    EPD.clearshadows(); 
    EPD.fontscale=1;
    dis_batt(3,272);
+  
    EPD.SetFont(2);
   
  // EPD.DrawUTF(20,220,10,10,(String)ESP.getVcc()+" "+(String)lastUpdate);
    EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
-   driver_delay_xms(DELAYTIME);
+   driver_delay_xms(DELAYTIME); 
+   //dis_time(0, 230);
  }
  void dis_batt(int16_t x, int16_t y)
 {
@@ -207,6 +215,14 @@ void updatedisplay()
   if (batt_voltage>3.1)  EPD.DrawXbm_P(x,y,20,10,(unsigned char *)batt_5);
   
   }
+
+ void dis_time(int16_t x, int16_t y)
+ {
+  EPD.fontscale=1;EPD.clearbuffer();
+  EPD.SetFont(3);
+  EPD.DrawUTF(x,y,12,12,timeClient.getFormattedTime());
+  EPD.EPD_Dis_Part(0,15,230,271,(unsigned char *)EPD.EPDbuffer,1);
+ }
 
 void updateData() {
   
@@ -258,13 +274,42 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   driver_delay_xms(DELAYTIME);
 }
 
+/*
+ * rctmem[2]=126 always sleep
+ * rctmem[0]=126 first time power up
+ * rtc_mem[1] how many hours left
+ * 
+ */
+void read_time_from_rtc_mem()
+{ 
+  byte rtc_mem[4];
+  ESP.rtcUserMemoryRead(8, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
+  timeClient.localEpoc = ((unsigned long)rtc_mem[3] << 24) | ((unsigned long)rtc_mem[2] << 16) | ((unsigned long)rtc_mem[1] << 8) | (unsigned long)rtc_mem[0];
+  Serial.println("readlocalepoc:");Serial.println(timeClient.localEpoc);
+  }
+void write_time_to_rtc_mem()
+{
+  //write time to rtc before sleep
+  long time_before_sleep;
+  time_before_sleep=timeClient.getCurrentEpoch();
+  byte rtc_mem[4];
+  rtc_mem[0] = byte(time_before_sleep);
+  rtc_mem[1] = byte(time_before_sleep >> 8);
+  rtc_mem[2] = byte(time_before_sleep >> 16);
+  rtc_mem[3] = byte(time_before_sleep >> 24);
+  ESP.rtcUserMemoryWrite(8, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
+  Serial.println("writelocalepoc:");Serial.println(rtc_mem[0]);
+  Serial.println("writelocalepoc1:");Serial.println(rtc_mem[1]);
+  Serial.println("writelocalepoc2:");Serial.println(rtc_mem[2]);
+  Serial.println("writelocalepoc3:");Serial.println(rtc_mem[3]);
 
+}
 
 unsigned long read_config()
 {
   byte rtc_mem[4];
   ESP.rtcUserMemoryRead(4, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-  ////Serial.println("first time to run check config");
+  ////check if sleeping forever is needed
   return rtc_mem[2];
   
   }
@@ -292,8 +337,12 @@ void check_rtc_mem()
   if (rtc_mem[0]!=126)
   {
     Serial.println("first time to run");
+    byte times= byte(sleeptime*60/timeupdateinterval);
+    Serial.println("times");Serial.println(times);
     rtc_mem[0]=126;
     rtc_mem[1]=0;
+    rtc_mem[2]=times;//time
+    Serial.println("rctmemblock0-2");Serial.println(rtc_mem[2]);
     ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
     }
   else
@@ -308,5 +357,29 @@ void check_rtc_mem()
        ESP.deepSleep(60 * sleeptime * 1000000);
       }
     }
-  
+   
   }
+  void update_time()
+  {
+      byte rtc_mem[4];
+      byte times= byte(sleeptime*60/timeupdateinterval);
+  ESP.rtcUserMemoryRead(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
+     Serial.println("rtcmem[2]");
+    Serial.println(rtc_mem[2]);
+  if(rtc_mem[2]>times-1)
+  {
+    rtc_mem[2]=0;
+      Serial.println("rctmem[2]>59 need to update weather");
+    }
+    else
+    {
+      Serial.println("don't need to update weather, need time");
+      
+       rtc_mem[2]++;
+       dis_time(1, 240);
+       timeClient.localEpoc+=timeupdateinterval;
+       write_time_to_rtc_mem();
+       ESP.deepSleep(timeupdateinterval * 1 * 1000000);
+      }
+   ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
+    }

@@ -218,11 +218,11 @@ void updatedisplay()
 
  void dis_time(int16_t x, int16_t y)
  {
-  x=1;y=120;
+  x=24;y=128;
   EPD.fontscale=1;EPD.clearbuffer();
-  EPD.SetFont(4);
-  EPD.DrawUTF(x,y,56,56,timeClient.getFormattedTime());
-  EPD.EPD_Dis_Part(0,47,116,271,(unsigned char *)EPD.EPDbuffer,1);
+  EPD.SetFont(5);
+  EPD.DrawUTF(x,y,70,70,timeClient.getFormattedTime());
+  EPD.EPD_Dis_Part(24,95,128,295,(unsigned char *)EPD.EPDbuffer,1);
  }
 
 void updateData() {
@@ -370,17 +370,20 @@ void check_rtc_mem()
   if(rtc_mem[2]>times-1)
   {
     rtc_mem[2]=0;
+    ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
       Serial.println("rctmem[2]>59 need to update weather");
     }
     else
     {
       Serial.println("don't need to update weather, need time");
-      
-       rtc_mem[2]++;
+
+       byte rct_temp=byte(rtc_mem[2]+1);
+       rtc_mem[2]=rct_temp;
        dis_time(1, 240);
        timeClient.localEpoc+=timeupdateinterval;
        write_time_to_rtc_mem();
+       ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
        ESP.deepSleep(timeupdateinterval * 1 * 1000000);
       }
-   ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
+  
     }

@@ -51,5 +51,6 @@ class TimeClient {
     String getFormattedTime();
     long getCurrentEpoch();
     long getCurrentEpochWithUtcOffset();
+    String getFormattedTime_lastframe();
 
 };

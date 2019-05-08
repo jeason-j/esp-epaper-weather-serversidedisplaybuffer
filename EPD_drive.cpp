@@ -256,19 +256,19 @@ void WaveShare_EPD::DrawUnicodeStr(byte x,int16_t y,byte width,byte height,byte 
       
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=CurrentCursor+1;
-      if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
+     // if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
     }
     else if(fontscale==2)
     {
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=width*2;
-      if((y+ymove+width*2)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
+     // if((y+ymove+width*2)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
       }
     else
     {
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=width;
-      if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
+     // if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
       }
     i++;i++;
     }
@@ -327,22 +327,24 @@ void WaveShare_EPD::clearbuffer()
   }
 void WaveShare_EPD::clearshadows()
 {
- unsigned char c0[]={0x00};
- unsigned char c1[]={0xff};
- EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)c0,(unsigned char *)c1,0,0);
- 
- EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)c0,(unsigned char *)c1,0,0);
+ //unsigned char c0[]={0x00};
+ //unsigned char c1[]={0xff};
+ //EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)c1,(unsigned char *)c0,0,0);
+ //delay(1000);
+ //EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)c0,(unsigned char *)c1,0,0);
+ //delay(1000);
   }
 unsigned char WaveShare_EPD::ReadBusy(void)
 {
   unsigned long i=0;
   for(i=0;i<400;i++){
-	//Serial.println("isEPD_BUSY = %d\r\n",isEPD_CS);
-      if(isEPD_BUSY==EPD_BUSY_LEVEL) {
-				Serial.println("Busy is Low \r\n");
+	
+      if(isEPD_BUSY!=EPD_BUSY_LEVEL) {
+				//Serial.println("not Busy \r\n");
       	return 1;
       }
-	  driver_delay_xms(10);
+      //Serial.println("Busy \r\n");
+	    driver_delay_xms(10);
   }
   return 0;
 }
@@ -528,12 +530,12 @@ void WaveShare_EPD::EPD_Init(void)
 	driver_delay_xms(100);
 	
 	//2. set register
-	Serial.println("***********set register Start**********");
+	//Serial.println("***********set register Start**********");
  EPD_WriteCMD(0x01);     
  EPD_WriteData (0x03);
  EPD_WriteData (0x00);
- EPD_WriteData (0x2b);//2b
- EPD_WriteData (0x00);//2b
+ EPD_WriteData (0x26);//default26 max2b
+ EPD_WriteData (0x26);//default26 max2b
  EPD_WriteData (0x03);
  
  EPD_WriteCMD(0x06);
@@ -555,7 +557,7 @@ void WaveShare_EPD::EPD_Init(void)
  EPD_WriteData (0x28);
  
  EPD_WriteCMD(0X82);
- EPD_WriteData (0x00);
+ EPD_WriteData (0x20);
  
  EPD_WriteCMD(0X50);
  EPD_WriteData (0x97);
@@ -564,7 +566,7 @@ void WaveShare_EPD::EPD_Init(void)
 
 
   
-	Serial.println("***********set register  end**********");
+	//Serial.println("***********set register  end**********");
 }
 
 /********************************************************************************
@@ -611,23 +613,24 @@ void WaveShare_EPD::EPD_Dis_Full(unsigned char *DisBuffer,unsigned char Label)
 }
 void WaveShare_EPD::EPD_Dis_Part(unsigned char Xstart,unsigned char Xend,unsigned int Ystart,unsigned int Yend,unsigned char* olddata, unsigned char* newdata,unsigned char old_label,unsigned char new_label)
 {
- ReadBusy(); 
-  
+  //Serial.println("partial refresh begin");
+  ReadBusy(); 
   EPD_WriteCMD(0x50); 
   EPD_WriteData (0xb7);
+  //Serial.println("lut upload begin");
   LUT_Upload1();
-
+  //Serial.println("lut upload end");
   unsigned int Xsize=Xend-Xstart;
   unsigned int Ysize=Yend-Ystart+1;
  if(Xsize%8 != 0){
     Xsize = Xsize+(8-Xsize%8);
   }
   Xsize = Xsize/8;
-  unsigned int offset=Yend*16+Xstart/8;
+  unsigned int offset=Ystart*16+Xstart/8;
   unsigned int temp=Ystart;
-  Ystart=295-Yend;Yend=295-temp;
+  //Ystart=295-Yend;Yend=295-temp;
   
-
+//Serial.println("enter partial mode begin");
   EPD_WriteCMD(0x91); //enter partial refresh mode
   EPD_WriteCMD(0x90); 
   EPD_WriteData (Xstart);
@@ -637,17 +640,14 @@ void WaveShare_EPD::EPD_Dis_Part(unsigned char Xstart,unsigned char Xend,unsigne
   EPD_WriteData (Yend/256);
   EPD_WriteData (Yend%256);
   EPD_WriteData (0x0);
-
-  
+ // Serial.println("enter partial mode end");
  
-  
-  
-  
-  ReadBusy();  
+ // ReadBusy();  
   EPD_CS_0;  
   EPD_DC_0;   //command write
-  SPI_Write(0x00);
+  SPI_Write(0x10);
   EPD_DC_1;   //data write
+   //Serial.println("olddata");
   if(old_label==0)
   {
     for(int i=0;i<Ysize;i++){
@@ -664,11 +664,11 @@ void WaveShare_EPD::EPD_Dis_Part(unsigned char Xstart,unsigned char Xend,unsigne
       SPI_Write(*olddata);
       olddata++;
        }
-       newdata-=Xsize+16;
+       newdata+=16-Xsize;
    }
   }
   EPD_CS_1;
-
+  //Serial.println("newdata");
   ReadBusy();  
   EPD_CS_0;  
   EPD_DC_0;   //command write
@@ -690,12 +690,12 @@ void WaveShare_EPD::EPD_Dis_Part(unsigned char Xstart,unsigned char Xend,unsigne
      SPI_Write(*newdata);
       newdata++;
        }
-      newdata-=Xsize+16;
+      newdata+=16-Xsize;
    }
   }
   EPD_CS_1;
-
+ // Serial.println("alldone");
   driver_delay_xms(200);
   EPD_WriteCMD(0x12);
-  
+  EPD_WriteCMD(0x92);
   }

@@ -133,6 +133,10 @@ String TimeClient::getFormattedTime() {
   return getHours() + ":" + getMinutes();
 }
 
+String TimeClient::getFormattedTime_lastframe() {
+  return getHours() + ":" + getMinutes();
+}
+
 long TimeClient::getCurrentEpoch() {
   return localEpoc + ((millis() - localMillisAtUpdate) / 1000);
 }

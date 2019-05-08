@@ -38,6 +38,8 @@ SOFTWARE.
 #include "bitmaps.h"
 #include "lang.h"
 ADC_MODE(ADC_VCC);
+unsigned char b0[]={0x0};//black
+unsigned char b1[]={0xff};//white
 /***************************
   Settings
  **************************/
@@ -85,7 +87,7 @@ void setup() {
   EEPROM.begin(20);
   SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
   SPI.begin();
-  EPD.EPD_init_Part();driver_delay_xms(DELAYTIME);
+  EPD.EPD_Init();driver_delay_xms(DELAYTIME);
   
   update_time();//display time
  heweather.client_name=client_name;  
@@ -115,7 +117,7 @@ void setup() {
   EPD.DrawUTF(18,0,12,12,config_timeout_line2);
   EPD.DrawUTF(36,0,12,12,config_timeout_line3); 
   EPD.DrawUTF(52,0,12,12,config_timeout_line4); 
-  EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
+  EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)b1,(unsigned char *)EPD.EPDbuffer,0,1);
   EPD.deepsleep(); ESP.deepSleep(60 * 60 * 1000000);
   }
  city= custom_c.getValue();
@@ -187,16 +189,22 @@ ESP.deepSleep(timeupdateinterval * 1 * 1000000); //main control of sleeping inve
 }
 void updatedisplay()
 {
-   EPD.clearshadows(); 
+   //EPD.clearshadows(); 
    EPD.fontscale=1;
    dis_batt(3,272);
   
    EPD.SetFont(2);
+   EPD.EPD_Dis_Full((unsigned char *)EPD.EPDbuffer,0);
+   delay(4000);
+   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)b1,(unsigned char *)EPD.EPDbuffer,0,1);
+   delay(4000);
+   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,(unsigned char *)b0,1,0);
+ // EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)b1,(unsigned char *)EPD.EPDbuffer,0,1);
   
  // EPD.DrawUTF(20,220,10,10,(String)ESP.getVcc()+" "+(String)lastUpdate);
-   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
+ 
    driver_delay_xms(DELAYTIME); 
-   dis_time(0, 230);
+  // dis_time(0, 230);
  }
  void dis_batt(int16_t x, int16_t y)
 {
@@ -222,7 +230,7 @@ void updatedisplay()
   EPD.fontscale=1;EPD.clearbuffer();
   EPD.SetFont(5);
   EPD.DrawUTF(x,y,70,70,timeClient.getFormattedTime());
-  EPD.EPD_Dis_Part(24,95,128,295,(unsigned char *)EPD.EPDbuffer,1);
+  EPD.EPD_Dis_Part(24,95,128,295,(unsigned char *)b1,(unsigned char *)EPD.EPDbuffer,0,1);
  }
 
 void updateData() {
@@ -271,7 +279,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   EPD.DrawUTF(79,112,12,12,config_page_line5);
   EPD.DrawUTF(94,112,12,12,config_page_line6);
   EPD.DrawXbm_P(6,0,70,116,phone);
-  EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
+  EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)b1,(unsigned char *)EPD.EPDbuffer,0,1);
   driver_delay_xms(DELAYTIME);
 }
 

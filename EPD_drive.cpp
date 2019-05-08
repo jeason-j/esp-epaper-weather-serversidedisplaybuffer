@@ -4,7 +4,96 @@
 
 
 unsigned char UNICODEbuffer[200];
+
+//////////////////////////////////////full screen update LUT////////////////////////////////////////////
+const unsigned char lut_vcomDC[] ={
+0x00	,0x08	,0x00	,0x00	,0x00	,0x02,	
+0x60	,0x28	,0x28	,0x00	,0x00	,0x01,	
+0x00	,0x14	,0x00	,0x00	,0x00	,0x01,	
+0x00	,0x12	,0x12	,0x00	,0x00	,0x01,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00	
+,0x00	,0x00,					};
+const unsigned char lut_ww[] ={	
+0x40	,0x08	,0x00	,0x00	,0x00	,0x02,	
+0x90	,0x28	,0x28	,0x00	,0x00	,0x01,	
+0x40	,0x14	,0x00	,0x00	,0x00	,0x01,	
+0xA0	,0x12	,0x12	,0x00	,0x00	,0x01,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	};
+const unsigned char lut_bw[] ={	
+0x40	,0x17	,0x00	,0x00	,0x00	,0x02	,
+0x90	,0x0F	,0x0F	,0x00	,0x00	,0x03	,
+0x40	,0x0A	,0x01	,0x00	,0x00	,0x01	,
+0xA0	,0x0E	,0x0E	,0x00	,0x00	,0x02	,
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00	,
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00	,
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00	,					};
+const unsigned char lut_wb[] ={	
+0x80	,0x08	,0x00	,0x00	,0x00	,0x02,	
+0x90	,0x28	,0x28	,0x00	,0x00	,0x01,	
+0x80	,0x14	,0x00	,0x00	,0x00	,0x01,	
+0x50	,0x12	,0x12	,0x00	,0x00	,0x01,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	};
+const unsigned char lut_bb[] ={	
+0x80	,0x08	,0x00	,0x00	,0x00	,0x02,	
+0x90	,0x28	,0x28	,0x00	,0x00	,0x01,	
+0x80	,0x14	,0x00	,0x00	,0x00	,0x01,	
+0x50	,0x12	,0x12	,0x00	,0x00	,0x01,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	
+0x00	,0x00	,0x00	,0x00	,0x00	,0x00,	};
+
+//////////////////////////////////////partial screen update LUT////////////////////////////////////////////
+const unsigned char lut_vcomDC1[] ={
+0x00  ,0x19 ,0x01 ,0x00 ,0x00 ,0x01,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00
+  ,0x00 ,0x00,          };
+const unsigned char lut_ww1[] ={
+0x00  ,0x19 ,0x01 ,0x00 ,0x00 ,0x01,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,};
+const unsigned char lut_bw1[] ={
+0x80  ,0x19 ,0x01 ,0x00 ,0x00 ,0x01,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  };
+const unsigned char lut_wb1[] ={
+0x40  ,0x19 ,0x01 ,0x00 ,0x00 ,0x01,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  };
+const unsigned char lut_bb1[] ={
+0x00  ,0x19 ,0x01 ,0x00 ,0x00 ,0x01,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  
+0x00  ,0x00 ,0x00 ,0x00 ,0x00 ,0x00,  };
+
 String fontname;
+
+
 /***********************************************************************************************************************
 			------------------------------------------------------------------------
 			|\\\																///|
@@ -167,20 +256,19 @@ void WaveShare_EPD::DrawUnicodeStr(byte x,int16_t y,byte width,byte height,byte 
       
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=CurrentCursor+1;
-      
-     // if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
+      if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
     }
     else if(fontscale==2)
     {
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=width*2;
-     // if((y+ymove+width*2)>=yDot-1)  {xmove+=height+1;ymove=0;CurrentCursor=0;}
+      if((y+ymove+width*2)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
       }
     else
     {
       DrawUnicodeChar(x+xmove,y+ymove,width,height,(unsigned char *)code+i);
       ymove+=width;
-      //if((y+ymove+width)>=yDot-1)  {xmove+=height+1;ymove=0;CurrentCursor=0;}
+      if((y+ymove+width)>=yDot-1) {xmove+=height+1;ymove=0;CurrentCursor=0;}
       }
     i++;i++;
     }
@@ -239,18 +327,19 @@ void WaveShare_EPD::clearbuffer()
   }
 void WaveShare_EPD::clearshadows()
 {
- unsigned char temp[]={0x00};
-  EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)temp,0);
-temp[0]=0xff;
- EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)temp,0);
+ unsigned char c0[]={0x00};
+ unsigned char c1[]={0xff};
+ EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)c0,(unsigned char *)c1,0,0);
+ 
+ EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)c0,(unsigned char *)c1,0,0);
   }
 unsigned char WaveShare_EPD::ReadBusy(void)
 {
   unsigned long i=0;
   for(i=0;i<400;i++){
-	//	println("isEPD_BUSY = %d\r\n",isEPD_CS);
+	//Serial.println("isEPD_BUSY = %d\r\n",isEPD_CS);
       if(isEPD_BUSY==EPD_BUSY_LEVEL) {
-				////Serial.println("Busy is Low \r\n");
+				Serial.println("Busy is Low \r\n");
       	return 1;
       }
 	  driver_delay_xms(10);
@@ -268,38 +357,75 @@ void WaveShare_EPD::EPD_WriteCMD(unsigned char command)
 	SPI_Write(command);
 	EPD_CS_1;
 }
-/*******************************************************************************
-function：
-		write command and data
-*******************************************************************************/
-void WaveShare_EPD::EPD_WriteCMD_p1(unsigned char command,unsigned char para)
+void WaveShare_EPD::EPD_WriteData (unsigned char data)
 {
-	ReadBusy();	     
-  EPD_CS_0;		
-	EPD_DC_0;		// command write
-	SPI_Write(command);
-	EPD_DC_1;		// command write
-	SPI_Write(para);
-  EPD_CS_1;	
+  EPD_CS_0; 
+    //delay_us(10);
+  EPD_DC_1;
+  SPI_Write(data);
+  //delay_us(10);
+  EPD_CS_1;
 }
-/*******************************************************************************
-function：
-		Configure the power supply
-*******************************************************************************/
+
 void WaveShare_EPD::deepsleep(void)
 {
-  EPD_WriteCMD_p1(0x10,0x01);
- // EPD_WriteCMD(0x20);
+ EPD_WriteCMD(0x50); 
+ EPD_WriteData (0xf7);//border floating
+ EPD_WriteCMD(0x02);//power off
+ EPD_WriteCMD(0x07);//sleep
+ EPD_WriteData(0xa5);
   //EPD_WriteCMD(0xff);
 }
 
-void WaveShare_EPD::EPD_POWERON(void)
+//上传波形
+
+void WaveShare_EPD::LUT_Upload(void)
 {
-	EPD_WriteCMD_p1(0x22,0xc0);
+	unsigned int count;
 	EPD_WriteCMD(0x20);
-	//EPD_WriteCMD(0xff);
+	for(count=0;count<44;count++)	     
+		{EPD_WriteData(lut_vcomDC[count]);}
+
+	EPD_WriteCMD(0x21);
+	for(count=0;count<42;count++)	     
+		{EPD_WriteData(lut_ww[count]);}   
+	
+	EPD_WriteCMD(0x22);
+	for(count=0;count<42;count++)	     
+		{EPD_WriteData(lut_bw[count]);} 
+
+	EPD_WriteCMD(0x23);
+	for(count=0;count<42;count++)	     
+		{EPD_WriteData(lut_wb[count]);} 
+
+	EPD_WriteCMD(0x24);
+	for(count=0;count<42;count++)	     
+		{EPD_WriteData(lut_bb[count]);} 
 }
 
+void WaveShare_EPD::LUT_Upload1(void)
+{
+  unsigned int count;
+  EPD_WriteCMD(0x20);
+  for(count=0;count<44;count++)      
+    {EPD_WriteData(lut_vcomDC1[count]);}
+
+  EPD_WriteCMD(0x21);
+  for(count=0;count<42;count++)      
+    {EPD_WriteData(lut_ww1[count]);}   
+  
+  EPD_WriteCMD(0x22);
+  for(count=0;count<42;count++)      
+    {EPD_WriteData(lut_bw1[count]);} 
+
+  EPD_WriteCMD(0x23);
+  for(count=0;count<42;count++)      
+    {EPD_WriteData(lut_wb1[count]);} 
+
+  EPD_WriteCMD(0x24);
+  for(count=0;count<42;count++)      
+    {EPD_WriteData(lut_bb1[count]);} 
+}
 /*******************************************************************************
 function：
 		The first byte is written with the command value
@@ -307,24 +433,7 @@ function：
 		the address after a shift, 
 		the length of less than one byte	
 *******************************************************************************/
-void WaveShare_EPD::EPD_Write(unsigned char *value, unsigned char datalen)
-{
-	unsigned char i = 0;
-	unsigned char *ptemp;
-	ptemp = value;
-	
-	EPD_CS_0;
-	EPD_DC_0;		// When DC is 0, write command 
-	SPI_Write(*ptemp);	//The first byte is written with the command value
-	ptemp++;
-	EPD_DC_1;		// When DC is 1, write data
-	////Serial.println("send data  :"); 
-	for(i= 0;i<datalen-1;i++){	// sub the data
-		SPI_Write(*ptemp);
-		ptemp++;
-	}
-	EPD_CS_1;
-}
+
 /*******************************************************************************
 Function: Write the display buffer
 Parameters: 
@@ -333,33 +442,34 @@ Parameters:
 		the data storage location. The data must be arranged in a correct manner
 ********************************************************************************/
 void WaveShare_EPD::EPD_WriteDispRam(unsigned char XSize,unsigned int YSize,
-							unsigned char *Dispbuff,unsigned int offset)
+							unsigned char *Dispbuff)
 {
-	
 	int i = 0,j = 0;
 	if(XSize%8 != 0){
 		XSize = XSize+(8-XSize%8);
 	}
 	XSize = XSize/8;
-
 	ReadBusy();	
 	EPD_CS_0;	
-	EPD_DC_0;		//command write
-	SPI_Write(0x24);
+	EPD_DC_0;		//command write   newdata
+	SPI_Write(0x13);
 	EPD_DC_1;		//data write
-  
-  Dispbuff+=offset;
-  
 	for(i=0;i<YSize;i++){
 		for(j=0;j<XSize;j++){
-    
 			SPI_Write(*Dispbuff);
 			Dispbuff++;
-     
 		}
-      Dispbuff+=16-XSize;
-   
 	}
+ 
+ EPD_CS_0;
+ EPD_DC_0;   //command write   olddata
+  SPI_Write(0x10);
+  EPD_DC_1;   //data write
+  for(int i=0;i<4736;i++)
+  {
+    EPD_WriteData (0x00); 
+  }
+  
 	EPD_CS_1;
 }
 
@@ -381,64 +491,29 @@ void WaveShare_EPD::EPD_WriteDispRamMono(unsigned char XSize,unsigned int YSize,
 	ReadBusy();	    
 	EPD_CS_0;
 	EPD_DC_0;		// command write
-	SPI_Write(0x24);
+	SPI_Write(0x13);
 	EPD_DC_1;		// data write
 	for(i=0;i<YSize;i++){
 		for(j=0;j<XSize;j++){
 		 SPI_Write(dispdata);
 		}
 	}
-	EPD_CS_1;
+ 
+	EPD_CS_0;
+  EPD_DC_0;   //command write   olddata
+  SPI_Write(0x10);
+  EPD_DC_1;   //data write
+  for(int i=0;i<4736;i++)
+  {
+    EPD_WriteData (0x00); 
+  }
+  
+  EPD_CS_1;
 }
 
-/********************************************************************************
-Set RAM X and Y -address Start / End position
-********************************************************************************/
-void WaveShare_EPD::EPD_SetRamArea(unsigned char Xstart,unsigned char Xend,
-						unsigned char Ystart,unsigned char Ystart1,unsigned char Yend,unsigned char Yend1)
-{
-  unsigned char RamAreaX[3];	// X start and end
-	unsigned char RamAreaY[5]; 	// Y start and end
-	RamAreaX[0] = 0x44;	// command
-	RamAreaX[1] = Xstart;
-	RamAreaX[2] = Xend;
-	RamAreaY[0] = 0x45;	// command
-	RamAreaY[1] = Ystart;
-	RamAreaY[2] = Ystart1;
-	RamAreaY[3] = Yend;
-  RamAreaY[4] = Yend1;
-	EPD_Write(RamAreaX, sizeof(RamAreaX));
-	EPD_Write(RamAreaY, sizeof(RamAreaY));
-}
 
-/********************************************************************************
-Set RAM X and Y -address counter
-********************************************************************************/
-void WaveShare_EPD::EPD_SetRamPointer(unsigned char addrX,unsigned char addrY,unsigned char addrY1)
-{
-  unsigned char RamPointerX[2];	// default (0,0)
-	unsigned char RamPointerY[3];
-	//Set RAM X address counter
-	RamPointerX[0] = 0x4e;
-	RamPointerX[1] = addrX;
-	//Set RAM Y address counter
-	RamPointerY[0] = 0x4f;
-	RamPointerY[1] = addrY;
-	RamPointerY[2] = addrY1;
-	
-	EPD_Write(RamPointerX, sizeof(RamPointerX));
-	EPD_Write(RamPointerY, sizeof(RamPointerY));
-}
 
-/********************************************************************************
-1.Set RAM X and Y -address Start / End position
-2.Set RAM X and Y -address counter
-********************************************************************************/
-void WaveShare_EPD::EPD_part_display(unsigned char RAM_XST,unsigned char RAM_XEND,unsigned char RAM_YST,unsigned char RAM_YST1,unsigned char RAM_YEND,unsigned char RAM_YEND1)
-{    
-	EPD_SetRamArea(RAM_XST,RAM_XEND,RAM_YST,RAM_YST1,RAM_YEND,RAM_YEND1);  	/*set w h*/
-  EPD_SetRamPointer (RAM_XST,RAM_YST,RAM_YST1);		    /*set orginal*/
-}
+
 
 //=========================functions============================
 /*******************************************************************************
@@ -453,17 +528,43 @@ void WaveShare_EPD::EPD_Init(void)
 	driver_delay_xms(100);
 	
 	//2. set register
-	////Serial.println("***********set register Start**********");
-  EPD_Write(GateVol, sizeof(GateVol));
-	EPD_Write(GDOControl, sizeof(GDOControl));	// Pannel configuration, Gate selection
-	EPD_Write(softstart, sizeof(softstart));	// X decrease, Y decrease
-	EPD_Write(VCOMVol, sizeof(VCOMVol));		// VCOM setting
-	EPD_Write(DummyLine, sizeof(DummyLine));	// dummy line per gate
-	EPD_Write(Gatetime, sizeof(Gatetime));		// Gage time setting
-	EPD_Write(RamDataEntryMode, sizeof(RamDataEntryMode));	// X increase, Y decrease
-	EPD_SetRamArea(0x00,xDot/8,0x00,0x00,(yDot-1)%256,(yDot-1)/256);	// X-source area,Y-gage area
-	EPD_SetRamPointer(0x00,0,0);	// set ram
-	////Serial.println("***********set register  end**********");
+	Serial.println("***********set register Start**********");
+ EPD_WriteCMD(0x01);     
+ EPD_WriteData (0x03);
+ EPD_WriteData (0x00);
+ EPD_WriteData (0x2b);//2b
+ EPD_WriteData (0x00);//2b
+ EPD_WriteData (0x03);
+ 
+ EPD_WriteCMD(0x06);
+ EPD_WriteData (0x17);
+ EPD_WriteData (0x17);
+ 
+ EPD_WriteCMD(0x04);
+ ReadBusy(); 
+ 
+ EPD_WriteCMD(0x00); 
+ EPD_WriteData (0xb7);
+  
+ EPD_WriteCMD(0x30);  //PLL
+ EPD_WriteData (0x3a);
+ 
+ EPD_WriteCMD(0x61); //resolution
+ EPD_WriteData (0x80);
+ EPD_WriteData (0x01);
+ EPD_WriteData (0x28);
+ 
+ EPD_WriteCMD(0X82);
+ EPD_WriteData (0x00);
+ 
+ EPD_WriteCMD(0X50);
+ EPD_WriteData (0x97);
+  
+ 
+
+
+  
+	Serial.println("***********set register  end**********");
 }
 
 /********************************************************************************
@@ -471,23 +572,15 @@ Display data updates
 ********************************************************************************/
 void WaveShare_EPD::EPD_Update(void)
 {
-	EPD_WriteCMD_p1(0x22,0xc7);
-	EPD_WriteCMD(0x20);
-	EPD_WriteCMD(0xff);
+//三色屏幕没用到第三色，此处第三色刷为全空以供显示黑白
+ 	driver_delay_xms(200);
+	LUT_Upload();
+	EPD_WriteCMD(0x12);
 }
-void WaveShare_EPD::EPD_Update_Part(void)
-{
-	EPD_WriteCMD_p1(0x22,0x04);
-	EPD_WriteCMD(0x20);
-	EPD_WriteCMD(0xff);
-}
+
 /*******************************************************************************
 write the waveform to the dirver's ram
 ********************************************************************************/
-void WaveShare_EPD::EPD_WirteLUT(unsigned char *LUTvalue,unsigned char Size)
-{	
-	EPD_Write(LUTvalue, Size);
-}
 
 /*******************************************************************************
 Full screen initialization
@@ -495,21 +588,10 @@ Full screen initialization
 void WaveShare_EPD::EPD_init_Full(void)
 {		
 	EPD_Init();			// Reset and set register 
-  EPD_WirteLUT((unsigned char *)LUTDefault_full,sizeof(LUTDefault_full));
-		
-	EPD_POWERON();
-    //driver_delay_xms(100000); 		
+  //driver_delay_xms(100000); 		
 }
 
-/*******************************************************************************
-Part screen initialization
-********************************************************************************/
-void WaveShare_EPD::EPD_init_Part(void)
-{		
-	EPD_Init();			// display
-	EPD_WirteLUT((unsigned char *)LUTDefault_part,sizeof(LUTDefault_part));
-	EPD_POWERON();        		
-}
+
 /********************************************************************************
 parameter:
 	Label  :
@@ -518,222 +600,102 @@ parameter:
 ********************************************************************************/
 void WaveShare_EPD::EPD_Dis_Full(unsigned char *DisBuffer,unsigned char Label)
 {
-    EPD_SetRamPointer(0x00,0,0);	// set ram
-	////Serial.println(">>>>>>------start send display data!!---------<<<<<<<");
+   
 	if(Label == 0){
-		EPD_WriteDispRamMono(xDot, yDot, 0x01);	// white	
+		EPD_WriteDispRamMono(xDot, yDot, 0xff);	// white	
 	}else{
-		EPD_WriteDispRam(xDot, yDot, (unsigned char *)DisBuffer,0);	// white
+		EPD_WriteDispRam(xDot, yDot, (unsigned char *)DisBuffer);	// white
 	}	
 	EPD_Update();	
 	  
 }
-
-/********************************************************************************
-parameter: 
-		xStart :   X direction Start coordinates
-		xEnd   :   X direction end coordinates
-		yStart :   Y direction Start coordinates
-		yEnd   :   Y direction end coordinates
-		DisBuffer : Display content
-		Label  :
-       		=1 Displays the contents of the DisBuffer
-	   		=0 Displays the contents of the first byte in DisBuffer,
-********************************************************************************/
-void WaveShare_EPD::EPD_Dis_Part(unsigned char xStart,unsigned char xEnd,unsigned long yStart,unsigned long yEnd,unsigned char *DisBuffer,unsigned char Label)
+void WaveShare_EPD::EPD_Dis_Part(unsigned char Xstart,unsigned char Xend,unsigned int Ystart,unsigned int Yend,unsigned char* olddata, unsigned char* newdata,unsigned char old_label,unsigned char new_label)
 {
-	////Serial.println(">>>>>>------start send display data!!---------<<<<<<<");
-  unsigned long temp; temp=yStart;
-  unsigned int offset;offset=yStart*16+xStart/8;
-  Serial.println("offset");Serial.println(offset);
-  yStart=295-yEnd;yEnd=295-temp;
+ ReadBusy(); 
   
-	if(Label==0){// black
-		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);
-		EPD_WriteDispRamMono(xEnd-xStart, yEnd-yStart+1, DisBuffer[0]);
- 		EPD_Update_Part();
-		driver_delay_xms(500);
-		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);	
-		EPD_WriteDispRamMono(xEnd-xStart, yEnd-yStart+1,DisBuffer[0]);	
-	}else{// show 
-		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);		
-		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer,offset);
-		EPD_Update_Part();
-		driver_delay_xms(500);
-		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);
-		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer,offset);
-	}
-}
+  EPD_WriteCMD(0x50); 
+  EPD_WriteData (0xb7);
+  LUT_Upload1();
 
-/***********************************************************************************************************************
-			------------------------------------------------------------------------
-			|\\\																///|
-			|\\\						App layer								///|
-			------------------------------------------------------------------------
-***********************************************************************************************************************/
-/********************************************************************************
-		clear full screen
-********************************************************************************/
-void WaveShare_EPD::Dis_Clear_full(void)
-{
-	unsigned char m;
-	//init
-	////Serial.println("full init");
-	EPD_init_Full();
-	driver_delay_xms(DELAYTIME);
+  unsigned int Xsize=Xend-Xstart;
+  unsigned int Ysize=Yend-Ystart+1;
+ if(Xsize%8 != 0){
+    Xsize = Xsize+(8-Xsize%8);
+  }
+  Xsize = Xsize/8;
+  unsigned int offset=Yend*16+Xstart/8;
+  unsigned int temp=Ystart;
+  Ystart=295-Yend;Yend=295-temp;
+  
 
-	//Clear screen
-	////Serial.println("full clear\t\n");
+  EPD_WriteCMD(0x91); //enter partial refresh mode
+  EPD_WriteCMD(0x90); 
+  EPD_WriteData (Xstart);
+  EPD_WriteData (Xend);
+  EPD_WriteData (Ystart/256);
+  EPD_WriteData (Ystart%256);
+  EPD_WriteData (Yend/256);
+  EPD_WriteData (Yend%256);
+  EPD_WriteData (0x0);
+
+  
  
-	m=0xff;
-	EPD_Dis_Full((unsigned char *)&m,0);  //all white
- clearbuffer();
-	driver_delay_xms(DELAYTIME);
-}
-/********************************************************************************
-		clear part screen
-********************************************************************************/
-void WaveShare_EPD::Dis_Clear_part(void)
-{
-	unsigned char m;
-	//init
-	EPD_init_Part();
-	driver_delay_xms(DELAYTIME);
+  
+  
+  
+  ReadBusy();  
+  EPD_CS_0;  
+  EPD_DC_0;   //command write
+  SPI_Write(0x00);
+  EPD_DC_1;   //data write
+  if(old_label==0)
+  {
+    for(int i=0;i<Ysize;i++){
+    for(int j=0;j<Xsize;j++){
+      SPI_Write(*olddata);
+     }
+    }
+  }
+  else
+  {
+  olddata+=offset;
+  for(int i=0;i<Ysize;i++){
+    for(int j=0;j<Xsize;j++){
+      SPI_Write(*olddata);
+      olddata++;
+       }
+       newdata-=Xsize+16;
+   }
+  }
+  EPD_CS_1;
 
-	//Clear screen
-	m=0xff;
-	EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)&m,0);	 //all white
-	driver_delay_xms(DELAYTIME);
-}
+  ReadBusy();  
+  EPD_CS_0;  
+  EPD_DC_0;   //command write
+  SPI_Write(0x13);
+  EPD_DC_1;   //data write
+  if(new_label==0)
+  {
+    for(int i=0;i<Ysize;i++){
+    for(int j=0;j<Xsize;j++){
+     SPI_Write(*newdata);
+         }
+      }
+  }
+  else
+  {
+  newdata+=offset;
+  for(int i=0;i<Ysize;i++){
+    for(int j=0;j<Xsize;j++){
+     SPI_Write(*newdata);
+      newdata++;
+       }
+      newdata-=Xsize+16;
+   }
+  }
+  EPD_CS_1;
 
-/********************************************************************************
-parameter: 
-		xStart :   X direction Start coordinates
-		xEnd   :   X direction end coordinates
-		yStart :   Y direction Start coordinates
-		yEnd   :   Y direction end coordinates
-		DisBuffer : Display content
-********************************************************************************/
-void WaveShare_EPD::Dis_pic(unsigned char xStart,unsigned char xEnd,unsigned long yStart,unsigned long yEnd,unsigned char *DisBuffer)
-{
-	EPD_Dis_Part(xStart,xEnd,yStart,yEnd,(unsigned char *)DisBuffer,1);
-}
-
-/********************************************************************************
-funtion : Select the character size
-parameter :
-	acsii : char data 
-	size : char len
-	mode : char mode
-	next : char len
-Remarks:
-********************************************************************************/
-
-/********************************************************************************
-funtion : write string
-parameter :
-	x : x start address
-	y : y start address
-	pString : Display data
-	Size : char len
-Remarks:
-********************************************************************************/
- 
-
-/********************************************************************************
-funtion : Drawing pic
-parameter :
-	xStart : x start address
-	yStart : y start address
-	DisBuffer : Display data
-	xSize : Displays the x length of the image
-	ySize : Displays the y length of the image
-Remarks:
-	The sample image is 32 * 32
-********************************************************************************/
-void WaveShare_EPD::Dis_Drawing(unsigned char xStart,unsigned long yStart,unsigned char *DisBuffer,unsigned char xSize,unsigned char ySize)
-{
-	unsigned char x_addr = xStart*8;
-	unsigned char y_addr = yStart*8;
-	EPD_Dis_Part(y_addr,y_addr+xSize-1,yDot-ySize-x_addr,yDot-x_addr-1,(unsigned char *)DisBuffer,1);
-}
-void WaveShare_EPD::Dis_Drawing2(unsigned char xStart,unsigned long yStart,unsigned char *DisBuffer,unsigned char xSize,unsigned char ySize)
-{
-  unsigned char x_addr = xStart*8;
-  unsigned char y_addr = yStart;
-  EPD_Dis_Part(x_addr,x_addr+xSize-1,yDot-y_addr-ySize,yDot-y_addr-1,(unsigned char *)DisBuffer,1);
-}
-/********************************************************************************
-funtion : show Progress
-parameter :
-	progress_len : Progress bar length	
-********************************************************************************/
-void WaveShare_EPD::Dis_Progress(unsigned char progress_len)
-{
-	int x,y,z;
-	int pheight_pix = 2;
-	int pWidth_pix = 16;
-  unsigned char buffer[5000];
-	const unsigned char *phead ,*pzero,*pstart,*pspare,*pfull,*pend;
-	//1.Initialize the progress bar length and place it in the center of the lower end of the display
-	y = 0;
-	for(z= 0;z < progress_len;z++){
-		phead = progress_head;
-		pspare = progress_Spare;
-		pend = progress_end;
-		for(x = 0;x <pWidth_pix*pheight_pix;x++){
-			if(z == 0){
-				buffer[y] = *phead;
-				phead++;
-				y++;
-			}else if(z == progress_len -1){
-				buffer[y] = *pend;
-				pend++;
-				y++;
-			}else{
-				buffer[y] = *pspare;
-				pspare++;
-				y++;
-			}
-		}
-	}
-	EPD_Dis_Part(xDot-xDot/10-1,xDot-xDot/10+8,(yDot-16*progress_len)/2-1,(yDot-16*progress_len)/2-1+16*progress_len,(unsigned char *)buffer,1);
-	//2.Load progress bar
-	y =0;
-	for(z= 0;z < progress_len;z++){
-		pstart = progress_start;
-		pzero = progress_zero;
-		pfull = progress_full;
-		for(x = 0;x <pWidth_pix*pheight_pix;x++){
-			if(z == 0){
-				buffer[y] = *pzero;
-				pzero++;
-				y++;
-			}else if(z == progress_len-1){
-				buffer[y] = *pfull;
-				pfull++;
-				y++;
-			}else{
-				buffer[y] = *pstart;
-				pstart++;
-				y++;
-			}
-		}
-		EPD_Dis_Part(xDot-xDot/10-1,xDot-xDot/10+8,(yDot-16*progress_len)/2-1,(yDot-16*progress_len)/2-1+16*progress_len,(unsigned char *)buffer,1);
-	}
-}
-/********************************************************************************
-funtion : show time 
-parameter :
-	hour : The number of hours
-	min : The number of minute
-	sec : The number of sec
-Remarks:
-********************************************************************************/
-
-
-
-
-/***********************************************************
-						end file
-***********************************************************/
+  driver_delay_xms(200);
+  EPD_WriteCMD(0x12);
+  
+  }

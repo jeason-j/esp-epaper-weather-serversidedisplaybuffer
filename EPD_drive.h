@@ -97,24 +97,26 @@ class WaveShare_EPD {
   
 	unsigned char ReadBusy(void);
 	void EPD_WriteCMD(unsigned char command);
-	void EPD_WriteCMD_p1(unsigned char command,unsigned char para);
-	void EPD_POWERON(void);
-	void EPD_Write(unsigned char *value, unsigned char datalen);
-	void EPD_WriteDispRam(unsigned char XSize,unsigned int YSize,unsigned char *Dispbuff,unsigned int offset);
+ void EPD_WriteData (unsigned char data);
+ 
+ void LUT_Upload (void);
+ void LUT_Upload1(void);
 	
-	void EPD_SetRamArea(unsigned char Xstart,unsigned char Xend,unsigned char Ystart,unsigned char Ystart1,unsigned char Yend,unsigned char Yend1);
-	void EPD_SetRamPointer(unsigned char addrX,unsigned char addrY,unsigned char addrY1);
-	void EPD_part_display(unsigned char RAM_XST,unsigned char RAM_XEND,unsigned char RAM_YST,unsigned char RAM_YST1,unsigned char RAM_YEND,unsigned char RAM_YEND1);
-	void EPD_Init(void);
 	
-	void EPD_Update_Part(void);
-	void EPD_WirteLUT(unsigned char *LUTvalue,unsigned char Size);
+	void EPD_WriteDispRam(unsigned char XSize,unsigned int YSize,unsigned char *Dispbuff);
+	
+	
+
+
+	
+	
 	
 	
 
 	void Dis_Char(char acsii,char size,char mode,char next,unsigned char *buffer);
 	
-public:
+public: 
+void EPD_Init(void);
 void deepsleep(void);
 byte fontscale;byte FontIndex;int16_t CurrentCursor;unsigned char EPDbuffer[xDot*yDot/8];
 byte fontwidth;byte fontheight;
@@ -135,13 +137,9 @@ void DrawXbm_P(int16_t xMove, int16_t yMove, int16_t width, int16_t height,const
 	void clearshadows();
 	void EPD_init_Full(void);
  void EPD_Dis_Full(unsigned char *DisBuffer,unsigned char Label);
- void Dis_Drawing2(unsigned char xStart,unsigned long yStart,unsigned char *DisBuffer,unsigned char xSize,unsigned char ySize);
-void  Dis_String2(unsigned char x,unsigned char y, const char *pString,unsigned int  Size);
-  void EPD_Dis_Part(unsigned char xStart,unsigned char xEnd,unsigned long yStart,unsigned long yEnd,unsigned char *DisBuffer,unsigned char Label);
+ void EPD_Dis_Part(unsigned char Xstart,unsigned char Xend,unsigned int Ystart,unsigned int Yend,unsigned char* olddata, unsigned char* newdata,unsigned char old_lable,unsigned char new_label);
 	void EPD_WriteDispRamMono(unsigned char XSize,unsigned int YSize,unsigned char dispdata);
-	void EPD_init_Part(void);
-	void Dis_Clear_full(void);
-	void Dis_Clear_part(void);
+
 	void Dis_pic(unsigned char xStart,unsigned char xEnd,unsigned long yStart,unsigned long yEnd,unsigned char *DisBuffer);
 	void Dis_String(unsigned char x,unsigned char y, const char *pString,unsigned int  Size);
 	void Dis_Drawing(unsigned char xStart,unsigned long yStart,unsigned char *DisBuffer,unsigned char xSize,unsigned char ySize);

@@ -49,6 +49,7 @@ class TimeClient {
     String getMinutes();
     String getSeconds();
     String getFormattedTime();
+    byte getSeconds_byte();
     long getCurrentEpoch();
     long getCurrentEpochWithUtcOffset();
     String getFormattedTime_lastframe();

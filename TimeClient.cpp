@@ -117,6 +117,13 @@ String TimeClient::getMinutes() {
     }
     return String(minutes);
 }
+byte TimeClient::getSeconds_byte(){
+   if (localEpoc == 0) {
+      return 0;
+    }
+    int seconds = getCurrentEpochWithUtcOffset() % 60;
+  return byte(seconds);
+  }
 String TimeClient::getSeconds() {
     if (localEpoc == 0) {
       return "--";

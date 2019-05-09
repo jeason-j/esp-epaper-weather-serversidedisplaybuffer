@@ -45,7 +45,7 @@ unsigned char b1[]={0xff};//white
  **************************/
 
 const int sleeptime=60;     //updating interval 71min maximum
-const int timeupdateinterval=60;  //update time on display/seconds
+int timeupdateinterval=60;  //update time on display/seconds
 const float UTC_OFFSET = 8;
 byte end_time=7;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
@@ -182,6 +182,9 @@ void loop() {
  }
  
 EPD.deepsleep();
+byte seconds=timeClient.getSeconds_byte();
+if(seconds>50) timeupdateinterval=seconds+60;
+else timeupdateinterval=60-seconds;
 timeClient.localEpoc+=timeupdateinterval;
 write_time_to_rtc_mem();//save time before sleeping
 ESP.deepSleep(timeupdateinterval * 1 * 1000000); //main control of sleeping inverval
@@ -391,7 +394,12 @@ void check_rtc_mem()
        byte rct_temp=byte(rtc_mem[2]+1);
        rtc_mem[2]=rct_temp;
        dis_time(1, 240);
-       timeClient.localEpoc+=timeupdateinterval;
+       EPD.deepsleep();
+        byte seconds=timeClient.getSeconds_byte();
+        if(seconds>50) timeupdateinterval=seconds+60;
+        else timeupdateinterval=60-seconds;
+        timeClient.localEpoc+=timeupdateinterval;
+       
        write_time_to_rtc_mem();
        ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
        ESP.deepSleep(timeupdateinterval * 1 * 1000000);

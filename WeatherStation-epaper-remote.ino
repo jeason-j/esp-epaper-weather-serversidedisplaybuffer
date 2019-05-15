@@ -168,7 +168,7 @@ updatedisplay();
 void check()
 {
   if(updating==true)
-  {EPD.deepsleep(); ESP.deepSleep(60 * sleeptime * 1000000);}
+  {EPD.deepsleep(); ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DISABLED);}
   avoidstuck.detach();
   return;
   }
@@ -187,7 +187,8 @@ if(seconds>50) timeupdateinterval=seconds+60;
 else timeupdateinterval=60-seconds;
 timeClient.localEpoc+=timeupdateinterval;
 write_time_to_rtc_mem();//save time before sleeping
-ESP.deepSleep(timeupdateinterval * 1 * 1000000); //main control of sleeping inverval
+Serial.print("sleeptime:");Serial.println(timeupdateinterval);
+ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DISABLED); //main control of sleeping inverval
 
 }
 void updatedisplay()
@@ -334,7 +335,7 @@ unsigned long always_sleep()
   ESP.rtcUserMemoryRead(4, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
   if (rtc_mem[2]!=126)
   {
-    ////Serial.println("first time to run check config");
+    //Serial.println("first time to run check config");
     rtc_mem[2]=126;
     ESP.rtcUserMemoryWrite(4, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
    
@@ -351,13 +352,13 @@ void check_rtc_mem()
   ESP.rtcUserMemoryRead(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
   if (rtc_mem[0]!=126)
   {
-    //Serial.println("first time to run");
+    Serial.println("first time to run");
     byte times= byte(sleeptime*60/timeupdateinterval);
     //Serial.println("times");Serial.println(times);
     rtc_mem[0]=126;
     rtc_mem[1]=0;
     rtc_mem[2]=times;//time
-    //Serial.println("rctmemblock0-2");Serial.println(rtc_mem[2]);
+    Serial.println("rctmemblock0-2");Serial.println(rtc_mem[2]);
     ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
     }
   else
@@ -365,8 +366,8 @@ void check_rtc_mem()
     if(rtc_mem[1]>0) 
     {
        rtc_mem[1]--;
-      // Serial.println("don't need to update weather");
-      // Serial.println(rtc_mem[1]);
+      //Serial.println("don't need to update weather");
+      //Serial.println(rtc_mem[1]);
        ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
        EPD.deepsleep();
        ESP.deepSleep(60 * sleeptime * 1000000);
@@ -379,30 +380,36 @@ void check_rtc_mem()
       byte rtc_mem[4];
       byte times= byte(sleeptime*60/timeupdateinterval);
   ESP.rtcUserMemoryRead(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-    // Serial.println("rtcmem[2]");
-  //  Serial.println(rtc_mem[2]);
+    Serial.println("rtcmem[2]");Serial.println(rtc_mem[2]);
+  
   if(rtc_mem[2]>times-1)
   {
     rtc_mem[2]=0;
     ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-      //Serial.println("rctmem[2]>59 need to update weather");
+    Serial.println("rctmem[2]>59 need to update weather");
     }
+  
     else
     {
-      //Serial.println("don't need to update weather, need time");
+      Serial.println("don't need to update weather, need time");
 
        byte rct_temp=byte(rtc_mem[2]+1);
        rtc_mem[2]=rct_temp;
        dis_time(1, 240);
        EPD.deepsleep();
-        byte seconds=timeClient.getSeconds_byte();
-        if(seconds>50) timeupdateinterval=seconds+60;
-        else timeupdateinterval=60-seconds;
-        timeClient.localEpoc+=timeupdateinterval;
-       
+      //  byte seconds=timeClient.getSeconds_byte();
+       // if(seconds>50) timeupdateinterval=seconds+60;
+       // else timeupdateinterval=60-seconds;
+       // timeClient.localEpoc+=timeupdateinterval;
+       timeupdateinterval=60;
+       timeClient.localEpoc+=timeupdateinterval;
        write_time_to_rtc_mem();
        ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-       ESP.deepSleep(timeupdateinterval * 1 * 1000000);
-      }
+       if((rtc_mem[2]=times-1))
+       {
+       ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DEFAULT);}
+       else ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DISABLED);
+       }
+      
   
     }

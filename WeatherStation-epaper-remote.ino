@@ -37,6 +37,7 @@ SOFTWARE.
 #include "EPD_drive_gpio.h"
 #include "bitmaps.h"
 #include "lang.h"
+#include "FS.h"
 ADC_MODE(ADC_VCC);
 unsigned char b0[]={0x00};//black
 unsigned char b1[]={0xff};//white
@@ -50,7 +51,7 @@ const float UTC_OFFSET = 8;
 byte end_time=7;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
 const char* server="www.duckweather.tk";
-const char* client_name="news"; //send message to weather station via duckduckweather.esy.es/client.php
+char* client_name="news"; //send message to weather station via duckduckweather.esy.es/client.php
 //modify language in lang.h
 
  /***************************
@@ -70,9 +71,10 @@ void saveConfigCallback () {
 }
 void setup() {
  
-  Serial.begin(115200);
-  
-  Serial.println("check_rtc_mem");Serial.println("check_rtc_mem");read_time_from_rtc_mem();
+   Serial.begin(74800);
+  // Serial.print("time-milis-setup");Serial.println(millis());
+ // Serial.println("check_rtc_mem");Serial.println("check_rtc_mem");
+  read_time_from_rtc_mem();
   check_rtc_mem();
    if (read_config()==126)
   {
@@ -87,8 +89,10 @@ void setup() {
   EEPROM.begin(20);
   SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
   SPI.begin();
-  EPD.EPD_Init();driver_delay_xms(DELAYTIME);
-  
+  EPD.EPD_Init();
+  //driver_delay_xms(DELAYTIME);
+  SPIFFS.begin();
+   //Serial.print("time-milisbeforeupdate_time");Serial.println(millis());
   update_time();//display time
  heweather.client_name=client_name;  
  
@@ -97,6 +101,7 @@ void setup() {
    *************************************************/
   
   WiFiManagerParameter custom_c("city","city","your city", 20);
+  WiFiManagerParameter custom_client_name("client_name","client_name","news", 20);
   WiFiManager wifiManager;
 
   wifiManager.setConfigPortalTimeout(180);
@@ -232,11 +237,14 @@ void updatedisplay()
  {
   x=24;y=128;
   //unsigned char oldbuffer[4736];memcpy(oldbuffer, EPD.EPDbuffer, 4736);memset(oldbuffer,0,4736);
-  EPD.fontscale=1;EPD.clearbuffer();
+  EPD.fontscale=1;
+  //Serial.print("time-milis-beforebufferclear-time");Serial.println(millis());
+  EPD.clearbuffer();
   EPD.SetFont(5);
-  
+  //Serial.print("time-milis-beforedrawutf-time");Serial.println(millis());
   EPD.DrawUTF(x,y,70,70,timeClient.getFormattedTime());
 //EPD.EPD_Dis_Part(24,95,128,295,(unsigned char *)oldbuffer,(unsigned char *)EPD.EPDbuffer,1,1);
+ //Serial.print("time-milis-start_dis_part-time");Serial.println(millis());
   EPD.EPD_Dis_Part(24,95,128,295,(unsigned char *)b1,(unsigned char *)EPD.EPDbuffer,0,1);
  }
 
@@ -352,13 +360,13 @@ void check_rtc_mem()
   ESP.rtcUserMemoryRead(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
   if (rtc_mem[0]!=126)
   {
-    Serial.println("first time to run");
+   // Serial.println("first time to run");
     byte times= byte(sleeptime*60/timeupdateinterval);
     //Serial.println("times");Serial.println(times);
     rtc_mem[0]=126;
     rtc_mem[1]=0;
     rtc_mem[2]=times;//time
-    Serial.println("rctmemblock0-2");Serial.println(rtc_mem[2]);
+   // Serial.println("rctmemblock0-2");Serial.println(rtc_mem[2]);
     ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
     }
   else
@@ -380,23 +388,26 @@ void check_rtc_mem()
       byte rtc_mem[4];
       byte times= byte(sleeptime*60/timeupdateinterval);
   ESP.rtcUserMemoryRead(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-    Serial.println("rtcmem[2]");Serial.println(rtc_mem[2]);
+   // Serial.println("rtcmem[2]");Serial.println(rtc_mem[2]);
   
   if(rtc_mem[2]>times-1)
   {
     rtc_mem[2]=0;
     ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-    Serial.println("rctmem[2]>59 need to update weather");
+  //  Serial.println("rctmem[2]>59 need to update weather");
     }
   
     else
     {
-      Serial.println("don't need to update weather, need time");
+     // Serial.println("don't need to update weather, need time");
 
        byte rct_temp=byte(rtc_mem[2]+1);
        rtc_mem[2]=rct_temp;
+       // Serial.print("time-milis-before-dis-time");Serial.println(millis());
        dis_time(1, 240);
+      // Serial.print("time-milis-end-dis-time");Serial.println(millis());
        EPD.deepsleep();
+       //Serial.print("time-milis-end-epd-deepsleep");Serial.println(millis());
       //  byte seconds=timeClient.getSeconds_byte();
        // if(seconds>50) timeupdateinterval=seconds+60;
        // else timeupdateinterval=60-seconds;
@@ -405,6 +416,7 @@ void check_rtc_mem()
        timeClient.localEpoc+=timeupdateinterval;
        write_time_to_rtc_mem();
        ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
+       Serial.print("time-milis");Serial.println(millis());
        if((rtc_mem[2]=times-1))
        {
        ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DEFAULT);}

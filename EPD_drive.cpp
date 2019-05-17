@@ -209,7 +209,7 @@ int WaveShare_EPD::UTFtoUNICODE(unsigned char *code)
   }
 void WaveShare_EPD::DrawUnicodeChar(byte x,int16_t y,byte width,byte height,unsigned char *code)
  { 
-  SPIFFS.begin();
+ // SPIFFS.begin();
   int offset;
   int sizeofsinglechar;
   if (height%8==0) sizeofsinglechar=(height/8)*width;
@@ -234,7 +234,7 @@ void WaveShare_EPD::DrawUnicodeChar(byte x,int16_t y,byte width,byte height,unsi
    {drawXbm(x,y,width,height,(unsigned char *)zi); }
    else  {drawXbm(x,y,width,height,(unsigned char *)zi);}
   
-SPIFFS.end();
+//SPIFFS.end();
 }
 
 void WaveShare_EPD::DrawUnicodeStr(byte x,int16_t y,byte width,byte height,byte strlength,unsigned char *code)
@@ -526,9 +526,9 @@ void WaveShare_EPD::EPD_Init(void)
 {
 	//1.reset driver
 	EPD_RST_0;		// Module reset
-	driver_delay_xms(100);
+	driver_delay_xms(50);
 	EPD_RST_1;
-	driver_delay_xms(100);
+	//driver_delay_xms(100);
 	
 	//2. set register
 	//Serial.println("***********set register Start**********");
@@ -576,7 +576,7 @@ Display data updates
 void WaveShare_EPD::EPD_Update(void)
 {
 //三色屏幕没用到第三色，此处第三色刷为全空以供显示黑白
- 	driver_delay_xms(200);
+ 	//driver_delay_xms(200);
 	LUT_Upload();
 	EPD_WriteCMD(0x12);
 }
@@ -696,7 +696,7 @@ void WaveShare_EPD::EPD_Dis_Part(unsigned char Xstart,unsigned char Xend,unsigne
   }
   EPD_CS_1;
  // Serial.println("alldone");
-  driver_delay_xms(200);
+  //driver_delay_xms(200);
   EPD_WriteCMD(0x12);
   EPD_WriteCMD(0x92);
   }

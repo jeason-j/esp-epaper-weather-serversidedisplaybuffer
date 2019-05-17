@@ -37,6 +37,7 @@ SOFTWARE.
 #include "EPD_drive_gpio.h"
 #include "bitmaps.h"
 #include "lang.h"
+#include "FS.h"
 ADC_MODE(ADC_VCC);
 /***************************
   Settings
@@ -48,7 +49,7 @@ const float UTC_OFFSET = 8;
 byte end_time=7;            //time that stops to update weather forecast
 byte start_time=7;          //time that starts to update weather forecast
 const char* server="www.duckweather.tk";
-const char* client_name="news"; //send message to weather station via duckduckweather.esy.es/client.php
+char* client_name="news"; //send message to weather station via duckduckweather.esy.es/client.php
 //modify language in lang.h
 
  /***************************
@@ -68,9 +69,10 @@ void saveConfigCallback () {
 }
 void setup() {
  
-  Serial.begin(115200);
+   Serial.begin(74800);
   
-  Serial.println("check_rtc_mem");Serial.println("check_rtc_mem");read_time_from_rtc_mem();
+ // Serial.println("check_rtc_mem");Serial.println("check_rtc_mem");
+  read_time_from_rtc_mem();
   check_rtc_mem();
    if (read_config()==126)
   {
@@ -85,8 +87,10 @@ void setup() {
   EEPROM.begin(20);
   SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
   SPI.begin();
-  EPD.EPD_init_Part();driver_delay_xms(DELAYTIME);
+  EPD.EPD_init_Part();
+  //driver_delay_xms(DELAYTIME);
   
+  SPIFFS.begin();
   update_time();//display time
  heweather.client_name=client_name;  
  
@@ -166,7 +170,7 @@ updatedisplay();
 void check()
 {
   if(updating==true)
-  {EPD.deepsleep(); ESP.deepSleep(60 * sleeptime * 1000000);}
+  {EPD.deepsleep(); ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DISABLED);}
   avoidstuck.detach();
   return;
   }
@@ -186,7 +190,7 @@ EPD.deepsleep();
         timeClient.localEpoc+=timeupdateinterval;
 
 write_time_to_rtc_mem();//save time before sleeping
-ESP.deepSleep(timeupdateinterval * 1 * 1000000); //main control of sleeping inverval
+ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DISABLED); //main control of sleeping inverval
 
 }
 void updatedisplay()
@@ -199,7 +203,7 @@ void updatedisplay()
   
  // EPD.DrawUTF(20,220,10,10,(String)ESP.getVcc()+" "+(String)lastUpdate);
    EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
-   driver_delay_xms(DELAYTIME); 
+   //driver_delay_xms(DELAYTIME); 
   // dis_time(0, 230);
  }
  void dis_batt(int16_t x, int16_t y)
@@ -276,7 +280,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   EPD.DrawUTF(94,112,12,12,config_page_line6);
   EPD.DrawXbm_P(6,0,70,116,phone);
   EPD.EPD_Dis_Part(0,127,0,295,(unsigned char *)EPD.EPDbuffer,1);
-  driver_delay_xms(DELAYTIME);
+  //driver_delay_xms(DELAYTIME);
 }
 
 /*
@@ -385,14 +389,21 @@ void check_rtc_mem()
        rtc_mem[2]=rct_temp;
        dis_time(1, 240);
        EPD.deepsleep();
-        byte seconds=timeClient.getSeconds_byte();
-        if(seconds>50) timeupdateinterval=seconds+60;
-        else timeupdateinterval=60-seconds;
+       //Serial.print("time-milis-end-epd-deepsleep");Serial.println(millis());
+      //  byte seconds=timeClient.getSeconds_byte();
+       // if(seconds>50) timeupdateinterval=seconds+60;
+       // else timeupdateinterval=60-seconds;
+       // timeClient.localEpoc+=timeupdateinterval;
+       timeupdateinterval=60;
         timeClient.localEpoc+=timeupdateinterval;
       
        write_time_to_rtc_mem();
        ESP.rtcUserMemoryWrite(0, (uint32_t*)&rtc_mem, sizeof(rtc_mem));
-       ESP.deepSleep(timeupdateinterval * 1 * 1000000);
+       Serial.print("time-milis");Serial.println(millis());
+       if((rtc_mem[2]=times-1))
+       {
+       ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DEFAULT);}
+       else ESP.deepSleep(timeupdateinterval * 1 * 1000000,WAKE_RF_DISABLED);
       }
   
     }

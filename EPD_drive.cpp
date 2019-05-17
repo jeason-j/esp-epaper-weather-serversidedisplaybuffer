@@ -120,7 +120,7 @@ int WaveShare_EPD::UTFtoUNICODE(unsigned char *code)
   }
 void WaveShare_EPD::DrawUnicodeChar(byte x,int16_t y,byte width,byte height,unsigned char *code)
  { 
-  SPIFFS.begin();
+ // SPIFFS.begin();
   int offset;
   int sizeofsinglechar;
   if (height%8==0) sizeofsinglechar=(height/8)*width;
@@ -145,7 +145,7 @@ void WaveShare_EPD::DrawUnicodeChar(byte x,int16_t y,byte width,byte height,unsi
    {drawXbm(x,y,width,height,(unsigned char *)zi); }
    else  {drawXbm(x,y,width,height,(unsigned char *)zi);}
   
-SPIFFS.end();
+//SPIFFS.end();
 }
 
 void WaveShare_EPD::DrawUnicodeStr(byte x,int16_t y,byte width,byte height,byte strlength,unsigned char *code)
@@ -448,9 +448,9 @@ void WaveShare_EPD::EPD_Init(void)
 {
 	//1.reset driver
 	EPD_RST_0;		// Module reset
-	driver_delay_xms(100);
+	driver_delay_xms(50);
 	EPD_RST_1;
-	driver_delay_xms(100);
+	//driver_delay_xms(100);
 	
 	//2. set register
 	////Serial.println("***********set register Start**********");
@@ -552,14 +552,14 @@ void WaveShare_EPD::EPD_Dis_Part(unsigned char xStart,unsigned char xEnd,unsigne
 		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);
 		EPD_WriteDispRamMono(xEnd-xStart, yEnd-yStart+1, DisBuffer[0]);
  		EPD_Update_Part();
-		driver_delay_xms(500);
+		//driver_delay_xms(500);
 		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);	
 		EPD_WriteDispRamMono(xEnd-xStart, yEnd-yStart+1,DisBuffer[0]);	
 	}else{// show 
 		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);		
 		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer,offset);
 		EPD_Update_Part();
-		driver_delay_xms(500);
+		//driver_delay_xms(500);
 		EPD_part_display(xStart/8,xEnd/8,yEnd%256,yEnd/256,yStart%256,yStart/256);
 		EPD_WriteDispRam(xEnd-xStart, yEnd-yStart+1,DisBuffer,offset);
 	}
@@ -580,7 +580,7 @@ void WaveShare_EPD::Dis_Clear_full(void)
 	//init
 	////Serial.println("full init");
 	EPD_init_Full();
-	driver_delay_xms(DELAYTIME);
+	//driver_delay_xms(DELAYTIME);
 
 	//Clear screen
 	////Serial.println("full clear\t\n");
@@ -588,7 +588,7 @@ void WaveShare_EPD::Dis_Clear_full(void)
 	m=0xff;
 	EPD_Dis_Full((unsigned char *)&m,0);  //all white
  clearbuffer();
-	driver_delay_xms(DELAYTIME);
+	//driver_delay_xms(DELAYTIME);
 }
 /********************************************************************************
 		clear part screen
@@ -598,12 +598,12 @@ void WaveShare_EPD::Dis_Clear_part(void)
 	unsigned char m;
 	//init
 	EPD_init_Part();
-	driver_delay_xms(DELAYTIME);
+	//driver_delay_xms(DELAYTIME);
 
 	//Clear screen
 	m=0xff;
 	EPD_Dis_Part(0,xDot-1,0,yDot-1,(unsigned char *)&m,0);	 //all white
-	driver_delay_xms(DELAYTIME);
+	//driver_delay_xms(DELAYTIME);
 }
 
 /********************************************************************************
